@@ -3,14 +3,20 @@ package com.dvo.taskManagerPro.web.controller
 import com.dvo.taskManagerPro.aop.CheckAccessToComment
 import com.dvo.taskManagerPro.mapper.CommentMapper
 import com.dvo.taskManagerPro.service.CommentService
+import com.dvo.taskManagerPro.swagger.StandardErrorResponses
 import com.dvo.taskManagerPro.web.model.request.PaginationRequest
 import com.dvo.taskManagerPro.web.model.request.UpdateCommentRequest
 import com.dvo.taskManagerPro.web.model.request.UpsertCommentRequest
 import com.dvo.taskManagerPro.web.model.response.CommentResponse
 import com.dvo.taskManagerPro.web.model.response.ModelListResponse
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -21,15 +27,32 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
+@Tag(name = "Comment Management", description = "Operations for managing comments")
 @RestController
 @RequestMapping("/api/comments")
 class CommentController(
     private val commentService: CommentService,
     private val commentMapper: CommentMapper
 ) {
+    @Operation(
+        summary = "Get all comments",
+        description = "Returns paginated list of all comments."
+    )
+    @StandardErrorResponses
+    @ApiResponse(
+        responseCode = "200",
+        description = "Запрос выполнен"
+    )
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    fun findAll(@RequestBody @Valid paginationRequest: PaginationRequest): ResponseEntity<ModelListResponse<CommentResponse>> {
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_EMPLOYEE')")
+    fun findAll(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Pagination parameters",
+            required = true
+        )
+        @RequestBody @Valid paginationRequest: PaginationRequest
+    ): ResponseEntity<ModelListResponse<CommentResponse>> {
         val comments = commentService.findAll(paginationRequest.pageRequest()).toList()
         val response = ModelListResponse(
             totalCount = comments.size.toLong(),
@@ -39,27 +62,76 @@ class CommentController(
         return ResponseEntity.ok(response)
     }
 
+    @Operation(
+        summary = "Get comment by ID",
+        description = "Returns a comment by ID."
+    )
+    @StandardErrorResponses
+    @ApiResponse(
+        responseCode = "200",
+        description = "Запрос выполнен"
+    )
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    fun findById(@PathVariable id: Long): ResponseEntity<CommentResponse> {
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_EMPLOYEE')")
+    fun findById(
+        @Parameter(
+            description = "Comment ID",
+            example = "1"
+        )
+        @PathVariable id: Long
+    ): ResponseEntity<CommentResponse> {
         val comment = commentService.findById(id)
 
         return ResponseEntity.ok(commentMapper.commentToResponse(comment))
     }
 
+    @Operation(
+        summary = "Create a new comment",
+        description = "Creates a new comment with provided information."
+    )
+    @StandardErrorResponses
+    @ApiResponse(
+        responseCode = "201",
+        description = "Запрос выполнен"
+    )
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@RequestBody @Valid request: UpsertCommentRequest): ResponseEntity<CommentResponse> {
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_EMPLOYEE')")
+    fun create(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Comment creation request",
+            required = true
+        )
+        @RequestBody @Valid request: UpsertCommentRequest
+    ): ResponseEntity<CommentResponse> {
         val comment = commentService.create(request)
 
         return ResponseEntity.ok(commentMapper.commentToResponse(comment))
     }
 
+    @Operation(
+        summary = "Update a comment",
+        description = "Updates a comment with provided information. Access limited by roles and AOP logic."
+    )
+    @StandardErrorResponses
+    @ApiResponse(
+        responseCode = "200",
+        description = "Запрос выполнен"
+    )
     @PutMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
     @CheckAccessToComment
     fun update(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Comment updating request",
+            required = true
+        )
         @RequestBody @Valid request: UpdateCommentRequest,
+        @Parameter(
+            description = "Comment ID",
+            example = "1"
+        )
         @PathVariable id: Long
     ): ResponseEntity<CommentResponse> {
         val comment = commentService.update(request, id)
@@ -67,10 +139,19 @@ class CommentController(
         return ResponseEntity.ok(commentMapper.commentToResponse(comment))
     }
 
+    @Operation(
+        summary = "Delete a comment",
+        description = "Deletes a comment by ID. Access limited by roles and AOP logic."
+    )
+    @StandardErrorResponses
+    @ApiResponse(
+        responseCode = "200",
+        description = "Запрос выполнен"
+    )
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     @CheckAccessToComment
-    fun deleteById(@PathVariable id: Long): ResponseEntity<Unit> {
+    fun deleteById(@Parameter(description = "Comment ID", example = "1") @PathVariable id: Long): ResponseEntity<Unit> {
         commentService.deleteById(id)
 
         return ResponseEntity.ok().build()
