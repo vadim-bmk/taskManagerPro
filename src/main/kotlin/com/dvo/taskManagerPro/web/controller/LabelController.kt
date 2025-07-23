@@ -9,6 +9,7 @@ import com.dvo.taskManagerPro.web.model.response.ModelListResponse
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -27,6 +28,7 @@ class LabelController(
 ) {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_EMPLOYEE')")
     fun findAll(@RequestBody @Valid paginationRequest: PaginationRequest): ResponseEntity<ModelListResponse<LabelResponse>> {
         val labels = labelService.findAll(paginationRequest.pageRequest()).toList()
         val response = ModelListResponse(
@@ -39,6 +41,7 @@ class LabelController(
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_EMPLOYEE')")
     fun findById(@PathVariable id: Long): ResponseEntity<LabelResponse> {
         val label = labelService.findById(id)
 
@@ -47,6 +50,7 @@ class LabelController(
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_EMPLOYEE')")
     fun create(@RequestBody request: UpsertLabelRequest): ResponseEntity<LabelResponse> {
         val label = labelService.create(labelMapper.requestToLabel(request))
 
@@ -55,6 +59,7 @@ class LabelController(
 
     @PutMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_EMPLOYEE')")
     fun update(
         @RequestBody request: UpsertLabelRequest,
         @PathVariable id: Long
@@ -66,6 +71,7 @@ class LabelController(
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     fun deleteById(@PathVariable id: Long): ResponseEntity<LabelResponse> {
         labelService.deleteById(id)
 
@@ -74,6 +80,7 @@ class LabelController(
 
     @GetMapping("/task/{taskId}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_EMPLOYEE')")
     fun findLabelsByTaskId(@PathVariable taskId: Long): ResponseEntity<ModelListResponse<LabelResponse>> {
         val labels = labelService.findLabelsByTaskId(taskId)
         val response = ModelListResponse(

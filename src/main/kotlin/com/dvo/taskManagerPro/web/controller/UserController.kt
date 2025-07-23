@@ -1,5 +1,6 @@
 package com.dvo.taskManagerPro.web.controller
 
+import com.dvo.taskManagerPro.aop.CheckAccessToUser
 import com.dvo.taskManagerPro.entity.RoleType
 import com.dvo.taskManagerPro.mapper.UserMapper
 import com.dvo.taskManagerPro.service.UserService
@@ -11,6 +12,7 @@ import com.dvo.taskManagerPro.web.model.response.UserResponse
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -30,6 +32,7 @@ class UserController(
 ) {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     fun findAll(@RequestBody @Valid paginationRequest: PaginationRequest): ResponseEntity<ModelListResponse<UserResponse>> {
         val userList = userService.findAll(paginationRequest.pageRequest()).toList()
         val response = ModelListResponse(
@@ -42,6 +45,7 @@ class UserController(
 
     @GetMapping("/username/{username}")
     @ResponseStatus(HttpStatus.OK)
+    @CheckAccessToUser
     fun findByUsername(@PathVariable username: String): ResponseEntity<UserResponse> {
         val user = userService.findByUsername(username)
 
@@ -61,6 +65,7 @@ class UserController(
 
     @PutMapping("/update/{username}")
     @ResponseStatus(HttpStatus.OK)
+    @CheckAccessToUser
     fun update(
         @RequestBody @Valid request: UpdateUserRequest,
         @PathVariable username: String
@@ -72,6 +77,7 @@ class UserController(
 
     @DeleteMapping("/{username}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     fun delete(@PathVariable username: String): ResponseEntity<Unit> {
         userService.deleteByUsername(username)
 

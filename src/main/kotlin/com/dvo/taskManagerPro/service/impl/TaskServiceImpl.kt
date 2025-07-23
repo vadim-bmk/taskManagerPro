@@ -88,12 +88,12 @@ class TaskServiceImpl(
     }
 
     @Transactional
-    override fun assignTaskToUser(userId: Long, taskId: Long) {
-        log.info("Call assignTaskToUser in TaskServiceImpl with userId: {} and taskId: {}", userId, taskId)
+    override fun assignTaskToUser(username: String, taskId: Long) {
+        log.info("Call assignTaskToUser in TaskServiceImpl with username: {} and taskId: {}", username, taskId)
 
-        val user = userRepository.findById(userId)
+        val user = userRepository.findByUsername(username)
             .orElseThrow {
-                EntityNotFoundException("User with ID: $userId not found")
+                EntityNotFoundException("User with username: $username not found")
             }
 
         val task = taskRepository.findById(taskId)

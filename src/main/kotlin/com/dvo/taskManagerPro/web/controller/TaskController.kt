@@ -1,5 +1,6 @@
 package com.dvo.taskManagerPro.web.controller
 
+import com.dvo.taskManagerPro.aop.CheckAccessToTask
 import com.dvo.taskManagerPro.mapper.TaskMapper
 import com.dvo.taskManagerPro.service.ProjectService
 import com.dvo.taskManagerPro.service.TaskService
@@ -11,6 +12,7 @@ import com.dvo.taskManagerPro.web.model.response.TaskResponse
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -32,6 +34,7 @@ class TaskController(
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_EMPLOYEE')")
     fun findAllByFilter(@Valid filter: TaskFilter): ResponseEntity<ModelListResponse<TaskResponse>> {
         val tasks = taskService.findAllByFilter(filter)
         val response = ModelListResponse(
@@ -44,6 +47,7 @@ class TaskController(
 
     @GetMapping("/id/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_EMPLOYEE')")
     fun findById(@PathVariable id: Long): ResponseEntity<TaskResponse> {
         val task = taskService.findById(id)
 
@@ -52,6 +56,7 @@ class TaskController(
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     fun create(
         @RequestBody @Valid request: UpsertTaskRequest,
         @RequestParam projectId: Long
@@ -64,6 +69,7 @@ class TaskController(
 
     @PutMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @CheckAccessToTask
     fun update(
         @RequestBody @Valid request: UpdateTaskRequest,
         @PathVariable id: Long
@@ -75,6 +81,7 @@ class TaskController(
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     fun deleteById(@PathVariable id: Long): ResponseEntity<Unit> {
         taskService.deleteById(id)
 
@@ -83,17 +90,19 @@ class TaskController(
 
     @PutMapping("/id/{id}/user")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     fun assignTaskToUser(
         @PathVariable id: Long,
-        @RequestParam userId: Long
+        @RequestParam username: String
     ): ResponseEntity<Unit> {
-        taskService.assignTaskToUser(userId, id)
+        taskService.assignTaskToUser(username, id)
 
         return ResponseEntity.ok().build()
     }
 
     @PutMapping("/id/{id}/delUser")
     @ResponseStatus(HttpStatus.OK)
+    @CheckAccessToTask
     fun unassignTaskFromUser(@PathVariable id: Long): ResponseEntity<Unit> {
         taskService.unassignTaskFromUser(id)
 
@@ -102,6 +111,7 @@ class TaskController(
 
     @PutMapping("/id/{id}/label")
     @ResponseStatus(HttpStatus.OK)
+    @CheckAccessToTask
     fun assignLabelToTask(
         @PathVariable id: Long,
         @RequestParam labelId: Long
@@ -113,6 +123,7 @@ class TaskController(
 
     @PutMapping("/id/{id}/delLabel")
     @ResponseStatus(HttpStatus.OK)
+    @CheckAccessToTask
     fun unassignLabelFromTask(
         @PathVariable id: Long,
         @RequestParam labelId: Long

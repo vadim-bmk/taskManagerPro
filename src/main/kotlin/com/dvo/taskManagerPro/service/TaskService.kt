@@ -11,7 +11,7 @@ interface TaskService {
     fun create(task: Task): Task
     fun update(task: UpdateTaskRequest, id: Long): Task
     fun deleteById(id: Long)
-    fun assignTaskToUser(userId: Long, taskId: Long)
+    fun assignTaskToUser(username: String, taskId: Long)
     fun unassignTaskFromUser(taskId: Long)
     fun getTasksByUser(userId: Long): List<Task>
     fun assignLabelToTask(taskId: Long, labelId: Long)

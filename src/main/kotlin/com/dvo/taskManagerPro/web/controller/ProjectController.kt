@@ -10,6 +10,7 @@ import com.dvo.taskManagerPro.web.model.response.ProjectResponse
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -28,6 +29,7 @@ class ProjectController(
 ) {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_EMPLOYEE')")
     fun findAllByFilter(@Valid filter: ProjectFilter): ResponseEntity<ModelListResponse<ProjectResponse>> {
         val projects = projectService.findAllByFilter(filter)
         val response = ModelListResponse(
@@ -40,6 +42,7 @@ class ProjectController(
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_EMPLOYEE')")
     fun findById(@PathVariable id: Long): ResponseEntity<ProjectResponse> {
         val project = projectService.findById(id)
 
@@ -48,6 +51,7 @@ class ProjectController(
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     fun create(@RequestBody request: UpsertProjectRequest): ResponseEntity<ProjectResponse> {
         val project = projectService.create(projectMapper.requestToProject(request))
 
@@ -56,6 +60,7 @@ class ProjectController(
 
     @PutMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     fun update(
         @RequestBody request: UpdateProjectRequest,
         @PathVariable id: Long
@@ -67,6 +72,7 @@ class ProjectController(
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     fun delete(@PathVariable id: Long): ResponseEntity<Unit> {
         projectService.deleteById(id)
 
@@ -75,6 +81,7 @@ class ProjectController(
 
     @PutMapping("/{id}/add/{username}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     fun assignedUserToProject(
         @PathVariable id: Long,
         @PathVariable username: String
@@ -86,6 +93,7 @@ class ProjectController(
 
     @PutMapping("/{id}/delete/{username}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     fun unassignedUserFromProject(
         @PathVariable id: Long,
         @PathVariable username: String
@@ -97,6 +105,7 @@ class ProjectController(
 
     @GetMapping("/user/{username}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     fun getProjectsByUser(@PathVariable username: String): ResponseEntity<ModelListResponse<ProjectResponse>> {
         val projects = projectService.getProjectsByUser(username)
         val response = ModelListResponse(

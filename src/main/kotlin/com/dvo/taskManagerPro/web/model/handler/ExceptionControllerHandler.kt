@@ -63,6 +63,14 @@ class ExceptionControllerHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
             .body(ErrorResponse("Доступ запрещен"))
     }
+
+    @ExceptionHandler(com.dvo.taskManagerPro.exception.AccessDeniedException::class)
+    fun handleMyAccessDeniedException(ex: com.dvo.taskManagerPro.exception.AccessDeniedException): ResponseEntity<ErrorResponse> {
+        log.warn("Доступ запрещен: {}", ex.message)
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(ErrorResponse("Доступ запрещен: ${ex.message}"))
+    }
+
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIllegalArgumentException(ex: IllegalArgumentException): ResponseEntity<ErrorResponse> {
         log.warn("Некорректный аргумент: {}", ex.message)

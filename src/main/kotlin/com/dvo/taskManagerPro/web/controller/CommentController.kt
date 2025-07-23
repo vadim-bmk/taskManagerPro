@@ -1,5 +1,6 @@
 package com.dvo.taskManagerPro.web.controller
 
+import com.dvo.taskManagerPro.aop.CheckAccessToComment
 import com.dvo.taskManagerPro.mapper.CommentMapper
 import com.dvo.taskManagerPro.service.CommentService
 import com.dvo.taskManagerPro.web.model.request.PaginationRequest
@@ -56,6 +57,7 @@ class CommentController(
 
     @PutMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @CheckAccessToComment
     fun update(
         @RequestBody @Valid request: UpdateCommentRequest,
         @PathVariable id: Long
@@ -67,6 +69,7 @@ class CommentController(
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @CheckAccessToComment
     fun deleteById(@PathVariable id: Long): ResponseEntity<Unit> {
         commentService.deleteById(id)
 
