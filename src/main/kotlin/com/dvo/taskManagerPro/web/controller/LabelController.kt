@@ -2,9 +2,11 @@ package com.dvo.taskManagerPro.web.controller
 
 import com.dvo.taskManagerPro.mapper.LabelMapper
 import com.dvo.taskManagerPro.service.LabelService
+import com.dvo.taskManagerPro.web.model.request.PaginationRequest
 import com.dvo.taskManagerPro.web.model.request.UpsertLabelRequest
 import com.dvo.taskManagerPro.web.model.response.LabelResponse
 import com.dvo.taskManagerPro.web.model.response.ModelListResponse
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -25,8 +27,8 @@ class LabelController(
 ) {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    fun findAll(): ResponseEntity<ModelListResponse<LabelResponse>> {
-        val labels = labelService.findAll()
+    fun findAll(@RequestBody @Valid paginationRequest: PaginationRequest): ResponseEntity<ModelListResponse<LabelResponse>> {
+        val labels = labelService.findAll(paginationRequest.pageRequest()).toList()
         val response = ModelListResponse(
             totalCount = labels.size.toLong(),
             data = labels.map(labelMapper::labelToResponse)

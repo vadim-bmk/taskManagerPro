@@ -1,10 +1,12 @@
 package com.dvo.taskManagerPro.service
 
 import com.dvo.taskManagerPro.entity.Task
+import com.dvo.taskManagerPro.web.model.filter.TaskFilter
 import com.dvo.taskManagerPro.web.model.request.UpdateTaskRequest
 
 interface TaskService {
     fun findAll(): List<Task>
+    fun findAllByFilter(filter: TaskFilter): List<Task>
     fun findById(id: Long): Task
     fun create(task: Task): Task
     fun update(task: UpdateTaskRequest, id: Long): Task

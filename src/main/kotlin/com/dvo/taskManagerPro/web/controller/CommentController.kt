@@ -2,6 +2,7 @@ package com.dvo.taskManagerPro.web.controller
 
 import com.dvo.taskManagerPro.mapper.CommentMapper
 import com.dvo.taskManagerPro.service.CommentService
+import com.dvo.taskManagerPro.web.model.request.PaginationRequest
 import com.dvo.taskManagerPro.web.model.request.UpdateCommentRequest
 import com.dvo.taskManagerPro.web.model.request.UpsertCommentRequest
 import com.dvo.taskManagerPro.web.model.response.CommentResponse
@@ -27,8 +28,8 @@ class CommentController(
 ) {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    fun findAll(): ResponseEntity<ModelListResponse<CommentResponse>> {
-        val comments = commentService.findAll()
+    fun findAll(@RequestBody @Valid paginationRequest: PaginationRequest): ResponseEntity<ModelListResponse<CommentResponse>> {
+        val comments = commentService.findAll(paginationRequest.pageRequest()).toList()
         val response = ModelListResponse(
             totalCount = comments.size.toLong(),
             data = comments.map(commentMapper::commentToResponse)

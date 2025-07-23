@@ -9,6 +9,8 @@ import com.dvo.taskManagerPro.service.LabelService
 import com.dvo.taskManagerPro.web.model.request.UpsertLabelRequest
 import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
@@ -18,10 +20,10 @@ class LabelServiceImpl(
 ) : LabelService {
     private val log = LoggerFactory.getLogger(LabelServiceImpl::class.java)
 
-    override fun findAll(): List<Label> {
-        log.info("Call findAll in LabelServiceImpl")
+    override fun findAll(pageable: Pageable): Page<Label> {
+        log.info("Call findAll in LabelServiceImpl with pageable: {}", pageable)
 
-        return labelRepository.findAll()
+        return labelRepository.findAll(pageable)
     }
 
     override fun findById(id: Long): Label {

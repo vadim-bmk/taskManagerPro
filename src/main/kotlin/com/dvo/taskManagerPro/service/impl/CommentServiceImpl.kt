@@ -11,6 +11,8 @@ import com.dvo.taskManagerPro.web.model.request.UpdateCommentRequest
 import com.dvo.taskManagerPro.web.model.request.UpsertCommentRequest
 import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
@@ -22,10 +24,10 @@ class CommentServiceImpl(
 ) : CommentService {
     private val log = LoggerFactory.getLogger(CommentServiceImpl::class.java)
 
-    override fun findAll(): List<Comment> {
-        log.info("Call findAll in CommentServiceImpl")
+    override fun findAll(pageable: Pageable): Page<Comment> {
+        log.info("Call findAll in CommentServiceImpl with pageable: {}", pageable)
 
-        return commentRepository.findAll()
+        return commentRepository.findAll(pageable)
     }
 
     override fun findById(id: Long): Comment {

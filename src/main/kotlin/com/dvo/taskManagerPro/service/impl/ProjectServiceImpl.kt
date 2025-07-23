@@ -5,11 +5,14 @@ import com.dvo.taskManagerPro.exception.EntityExistsException
 import com.dvo.taskManagerPro.exception.EntityNotFoundException
 import com.dvo.taskManagerPro.mapper.ProjectMapper
 import com.dvo.taskManagerPro.repository.ProjectRepository
+import com.dvo.taskManagerPro.repository.ProjectSpecification
 import com.dvo.taskManagerPro.repository.UserRepository
 import com.dvo.taskManagerPro.service.ProjectService
+import com.dvo.taskManagerPro.web.model.filter.ProjectFilter
 import com.dvo.taskManagerPro.web.model.request.UpdateProjectRequest
 import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 
 @Service
@@ -24,6 +27,17 @@ class ProjectServiceImpl(
         log.info("Call findAll in ProjectServiceImpl")
 
         return projectRepository.findAll()
+    }
+
+    override fun findAllByFilter(filter: ProjectFilter): List<Project> {
+        log.info("Call findAllByFilter in ProjectServiceImpl with filter: {}", filter)
+
+        val spec = ProjectSpecification.withFilter(filter)
+
+        return projectRepository.findAll(
+            spec,
+            PageRequest.of(filter.pageNumber!!, filter.pageSize!!)
+        ).content
     }
 
     override fun findById(id: Long): Project {

@@ -2,9 +2,11 @@ package com.dvo.taskManagerPro.service
 
 import com.dvo.taskManagerPro.entity.User
 import com.dvo.taskManagerPro.web.model.request.UpdateUserRequest
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 
 interface UserService {
-    fun findAll(): List<User>
+    fun findAll(pageable: Pageable): Page<User>
     fun findByUsername(username: String): User
     fun existsByUsername(username: String): Boolean
     fun existsByEmail(email: String): Boolean

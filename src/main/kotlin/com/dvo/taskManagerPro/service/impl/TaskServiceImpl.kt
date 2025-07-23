@@ -6,11 +6,15 @@ import com.dvo.taskManagerPro.exception.EntityNotFoundException
 import com.dvo.taskManagerPro.mapper.TaskMapper
 import com.dvo.taskManagerPro.repository.LabelRepository
 import com.dvo.taskManagerPro.repository.TaskRepository
+import com.dvo.taskManagerPro.repository.TaskSpecification
 import com.dvo.taskManagerPro.repository.UserRepository
 import com.dvo.taskManagerPro.service.TaskService
+import com.dvo.taskManagerPro.web.model.filter.TaskFilter
 import com.dvo.taskManagerPro.web.model.request.UpdateTaskRequest
 import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 
 @Service
@@ -26,6 +30,16 @@ class TaskServiceImpl(
         log.info("Call findAll in TaskServiceImpl")
 
         return taskRepository.findAll()
+    }
+
+    override fun findAllByFilter(filter: TaskFilter): List<Task> {
+        log.info("Call findAllByFilter in TaskServiceImpl with filter: {}", filter)
+
+        val spec = TaskSpecification.withFilter(filter) ?: Specification.where(null)
+        return taskRepository.findAll(
+            spec,
+            PageRequest.of(filter.pageNumber!!, filter.pageSize!!)
+        ).content
     }
 
     override fun findById(id: Long): Task {
@@ -57,7 +71,7 @@ class TaskServiceImpl(
                 EntityNotFoundException("Task with ID: $id not found")
             }
 
-        if (task.title!=null && taskRepository.existsByTitle(task.title) && task.title != existedTask.title) {
+        if (task.title != null && taskRepository.existsByTitle(task.title) && task.title != existedTask.title) {
             throw EntityExistsException("Task with title: ${task.title} already exists")
         }
 
@@ -124,7 +138,7 @@ class TaskServiceImpl(
                 EntityNotFoundException("Task with ID: $taskId not found")
             }
 
-        if (!task.labels.contains(label)){
+        if (!task.labels.contains(label)) {
             task.labels.add(label)
             taskRepository.save(task)
         }
@@ -145,7 +159,7 @@ class TaskServiceImpl(
                 EntityNotFoundException("Task with ID: $taskId not found")
             }
 
-        if (task.labels.contains(label)){
+        if (task.labels.contains(label)) {
             task.labels.remove(label)
             taskRepository.save(task)
         }

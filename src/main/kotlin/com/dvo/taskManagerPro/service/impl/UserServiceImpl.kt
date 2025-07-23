@@ -10,6 +10,8 @@ import com.dvo.taskManagerPro.web.model.request.UpdateUserRequest
 import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Lazy
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
@@ -22,10 +24,10 @@ class UserServiceImpl(
 ) : UserService {
     private final val log = LoggerFactory.getLogger(UserServiceImpl::class.java)
 
-    override fun findAll(): List<User> {
-        log.info("Call findAll in UserServiceImpl")
+    override fun findAll(pageable: Pageable): Page<User> {
+        log.info("Call findAll in UserServiceImpl with pageable: {}", pageable)
 
-        return userRepository.findAll()
+        return userRepository.findAll(pageable)
     }
 
     override fun findByUsername(username: String): User {

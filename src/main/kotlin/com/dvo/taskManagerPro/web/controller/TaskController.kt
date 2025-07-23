@@ -3,6 +3,7 @@ package com.dvo.taskManagerPro.web.controller
 import com.dvo.taskManagerPro.mapper.TaskMapper
 import com.dvo.taskManagerPro.service.ProjectService
 import com.dvo.taskManagerPro.service.TaskService
+import com.dvo.taskManagerPro.web.model.filter.TaskFilter
 import com.dvo.taskManagerPro.web.model.request.UpdateTaskRequest
 import com.dvo.taskManagerPro.web.model.request.UpsertTaskRequest
 import com.dvo.taskManagerPro.web.model.response.ModelListResponse
@@ -28,10 +29,11 @@ class TaskController(
     private val taskMapper: TaskMapper,
     private val projectService: ProjectService
 ) {
+
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    fun findAll(): ResponseEntity<ModelListResponse<TaskResponse>> {
-        val tasks = taskService.findAll()
+    fun findAllByFilter(@Valid filter: TaskFilter): ResponseEntity<ModelListResponse<TaskResponse>> {
+        val tasks = taskService.findAllByFilter(filter)
         val response = ModelListResponse(
             totalCount = tasks.size.toLong(),
             data = tasks.map(taskMapper::taskToResponse)

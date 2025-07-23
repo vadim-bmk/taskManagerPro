@@ -3,6 +3,7 @@ package com.dvo.taskManagerPro.web.controller
 import com.dvo.taskManagerPro.entity.RoleType
 import com.dvo.taskManagerPro.mapper.UserMapper
 import com.dvo.taskManagerPro.service.UserService
+import com.dvo.taskManagerPro.web.model.request.PaginationRequest
 import com.dvo.taskManagerPro.web.model.request.UpdateUserRequest
 import com.dvo.taskManagerPro.web.model.request.UpsertUserRequest
 import com.dvo.taskManagerPro.web.model.response.ModelListResponse
@@ -29,8 +30,8 @@ class UserController(
 ) {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    fun findAll(): ResponseEntity<ModelListResponse<UserResponse>> {
-        val userList = userService.findAll()
+    fun findAll(@RequestBody @Valid paginationRequest: PaginationRequest): ResponseEntity<ModelListResponse<UserResponse>> {
+        val userList = userService.findAll(paginationRequest.pageRequest()).toList()
         val response = ModelListResponse(
             totalCount = userList.size.toLong(),
             data = userList.map(userMapper::userToResponse)

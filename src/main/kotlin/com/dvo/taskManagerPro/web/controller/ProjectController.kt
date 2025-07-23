@@ -2,10 +2,12 @@ package com.dvo.taskManagerPro.web.controller
 
 import com.dvo.taskManagerPro.mapper.ProjectMapper
 import com.dvo.taskManagerPro.service.ProjectService
+import com.dvo.taskManagerPro.web.model.filter.ProjectFilter
 import com.dvo.taskManagerPro.web.model.request.UpdateProjectRequest
 import com.dvo.taskManagerPro.web.model.request.UpsertProjectRequest
 import com.dvo.taskManagerPro.web.model.response.ModelListResponse
 import com.dvo.taskManagerPro.web.model.response.ProjectResponse
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -26,8 +28,8 @@ class ProjectController(
 ) {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    fun findAll(): ResponseEntity<ModelListResponse<ProjectResponse>> {
-        val projects = projectService.findAll()
+    fun findAllByFilter(@Valid filter: ProjectFilter): ResponseEntity<ModelListResponse<ProjectResponse>> {
+        val projects = projectService.findAllByFilter(filter)
         val response = ModelListResponse(
             totalCount = projects.size.toLong(),
             data = projects.map(projectMapper::projectToResponse)
